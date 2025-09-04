@@ -24,7 +24,26 @@ const supabaseSecretKey = process.env.SUPABASE_SCRETE_KEY;
 const supabase = createClient(supabaseUrl, supabaseSecretKey);
 
 // -------------------- Middleware --------------------
-app.use(cors({ origin: "http://localhost:5173" }));
+const allowedOrigins = [
+  "http://localhost:5173", // local frontend
+  "https://frontend-eta-bay-40.vercel.app" // deployed frontend
+];
+
+// CORS middleware
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like Postman) or allowed origins
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS policy: This origin is not allowed."));
+      }
+    },
+    methods: ["GET", "POST", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 const upload = multer({ storage: multer.memoryStorage() });
 
